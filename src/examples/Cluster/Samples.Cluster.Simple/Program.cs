@@ -7,9 +7,18 @@
 
 using System;
 using System.Configuration;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Linq;
+using System.Runtime.Remoting.Contexts;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Akka.Actor;
 using Akka.Configuration;
 using Akka.Configuration.Hocon;
+using Akka.Contrib.Pattern;
 
 namespace Samples.Cluster.Simple
 {
@@ -25,20 +34,54 @@ namespace Samples.Cluster.Simple
         public static void StartUp(string[] ports)
         {
             var section = (AkkaConfigurationSection)ConfigurationManager.GetSection("akka");
+            var systems = new ActorSystem[3];
+            var count = 0;
             foreach (var port in ports)
             {
                 //Override the configuration of the port
                 var config =
                     ConfigurationFactory.ParseString("akka.remote.helios.tcp.port=" + port)
+                        .WithFallback(ConfigurationFactory.ParseString("akka.cluster.roles = [compute]"))
                         .WithFallback(section.AkkaConfig);
 
                 //create an Akka system
                 var system = ActorSystem.Create("ClusterSystem", config);
+                systems[count] = system;
 
-                //create an actor that handles cluster domain events
-                system.ActorOf(Props.Create(typeof (SimpleClusterListener)), "clusterListener");
+                count++;
+
+
+                /**
+                
+                var proxy = system.ActorOf(
+                    ClusterSingletonProxy.Props(
+                        "/user/singleton/greet",
+                        null,
+                        TimeSpan.FromSeconds(1.0)),
+                        "greetProxy"
+                        ); 
+                proxy.Tell(new Greet(port));
+                **/
             }
+
+            Thread.Sleep(1000);
+
+            foreach (var system in systems)
+            {
+                system.ActorOf(
+                  ClusterSingletonManager.Props(
+                      Props.Create<GreetingActor>(),
+                      "greet",
+                      PoisonPill.Instance,
+                      "compute",
+                      10,
+                      5,
+                      TimeSpan.FromSeconds(1.0)),
+                  "singleton");
+            }
+
         }
     }
+
 }
 

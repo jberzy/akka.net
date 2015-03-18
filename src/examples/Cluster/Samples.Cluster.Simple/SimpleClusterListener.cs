@@ -1,9 +1,10 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // <copyright file="SimpleClusterListener.cs" company="Akka.NET Project">
 //     Copyright (C) 2009-2015 Typesafe Inc. <http://www.typesafe.com>
 //     Copyright (C) 2013-2015 Akka.NET project <https://github.com/akkadotnet/akka.net>
 // </copyright>
 //-----------------------------------------------------------------------
+using System;
 
 using Akka.Actor;
 using Akka.Cluster;
@@ -57,6 +58,24 @@ namespace Samples.Cluster.Simple
             {
                 Unhandled(message);
             }
+        }
+    }
+
+    public class Greet
+    {
+        public string Who { get; private set; }
+
+        public Greet(string who)
+        {
+            Who = who;
+        }
+    }
+    public class GreetingActor : ReceiveActor
+    {
+        public GreetingActor()
+        {
+            // Tell the actor to respond to the Greet message
+            Receive<Greet>(greet => Console.WriteLine("Hello {0}", greet.Who));
         }
     }
 }

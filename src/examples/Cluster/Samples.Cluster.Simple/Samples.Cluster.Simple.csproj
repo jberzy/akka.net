@@ -57,6 +57,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\contrib\pattern\Akka.Contrib.Pattern\Akka.Contrib.Pattern.csproj">
+      <Project>{b83c096d-6aae-41f1-a576-2d762768cb08}</Project>
+      <Name>Akka.Contrib.Pattern</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\core\Akka.Cluster\Akka.Cluster.csproj">
       <Project>{6AB00F61-269A-4501-B06A-026707F000A7}</Project>
       <Name>Akka.Cluster</Name>
