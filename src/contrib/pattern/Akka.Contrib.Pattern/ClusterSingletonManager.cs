@@ -847,7 +847,7 @@ namespace Akka.Contrib.Pattern
             OnTransition(
                 (from, to) =>
                 {
-                    LogInfo("ClusterSingletonManager state change [{0} -> {1}]", from, to);
+                    LogInfo("ClusterSingletonManager state change [{0} -> {1}] {2}", from, to, StateData.ToString());
 
                     if (to == ClusterSingletonState.BecomingOldest) SetTimer(HandOverRetryTimer, new HandOverRetry { Count = 1 }, _retryInterval);
                     if (from == ClusterSingletonState.BecomingOldest) CancelTimer(HandOverRetryTimer);

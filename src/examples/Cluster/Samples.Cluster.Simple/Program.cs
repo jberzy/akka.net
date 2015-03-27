@@ -64,7 +64,7 @@ namespace Samples.Cluster.Simple
                 **/
             }
 
-            Thread.Sleep(1000);
+            //Thread.Sleep(10000);
 
             foreach (var system in systems)
             {
