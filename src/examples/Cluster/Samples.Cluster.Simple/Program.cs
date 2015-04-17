@@ -46,28 +46,6 @@ namespace Samples.Cluster.Simple
 
                 //create an Akka system
                 var system = ActorSystem.Create("ClusterSystem", config);
-                systems[count] = system;
-
-                count++;
-
-
-                /**
-                
-                var proxy = system.ActorOf(
-                    ClusterSingletonProxy.Props(
-                        "/user/singleton/greet",
-                        null,
-                        TimeSpan.FromSeconds(1.0)),
-                        "greetProxy"
-                        ); 
-                proxy.Tell(new Greet(port));
-                **/
-            }
-
-            //Thread.Sleep(10000);
-
-            foreach (var system in systems)
-            {
                 system.ActorOf(
                   ClusterSingletonManager.Props(
                       Props.Create<GreetingActor>(),
@@ -77,7 +55,17 @@ namespace Samples.Cluster.Simple
                       10,
                       5,
                       TimeSpan.FromSeconds(1.0)),
-                  "singleton");
+                      "singleton");
+            
+                /**
+                var proxy = system.ActorOf(
+                    ClusterSingletonProxy.Props(
+                        "/user/singleton/greet",
+                        null,
+                        TimeSpan.FromSeconds(1.0)),
+                        "greetProxy"
+                        ); 
+                proxy.Tell(new Greet(port)); **/
             }
 
         }

@@ -9,7 +9,7 @@ using Akka.Cluster;
 namespace Akka.Contrib.Pattern
 {
         
-    internal sealed class ClusterSingletonProxyActor : UntypedActor, WithUnboundedStash
+    internal sealed class ClusterSingletonProxyActor : UntypedActor, IWithUnboundedStash
     {
         internal sealed class TryToIdentifySingleton 
         {
@@ -26,7 +26,7 @@ namespace Akka.Contrib.Pattern
         private readonly Akka.Cluster.Cluster _cluster = Akka.Cluster.Cluster.Get(Context.System);
         private int _identityCounter = 0;
         private string _identityId;
-        private ActorRef _singleton;
+        private IActorRef _singleton;
         private string _role;
         private CancellationTokenSource _identityTimer;
         private TimeSpan _singletonIdentificationInterval;

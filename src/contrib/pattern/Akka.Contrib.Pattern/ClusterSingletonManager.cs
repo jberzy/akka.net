@@ -55,21 +55,21 @@ namespace Akka.Contrib.Pattern
 
     internal sealed class OldestData : IClusterSingletonData
     {
-        public ActorRef Singleton { get; set; }
+        public IActorRef Singleton { get; set; }
         public bool SingletonTerminated { get; set; }
     }
 
     internal sealed class WasOldestData : IClusterSingletonData
     {
-        public ActorRef Singleton { get; set; }
+        public IActorRef Singleton { get; set; }
         public bool SingletonTerminated { get; set; }
         public Address NewOldest { get; set; }
     }
 
     internal sealed class HandingOverData : IClusterSingletonData
     {     
-        public ActorRef Singleton { get; set; }
-        public ActorRef HandOverTo { get; set; }
+        public IActorRef Singleton { get; set; }
+        public IActorRef HandOverTo { get; set; }
 
     }
 
@@ -231,7 +231,7 @@ namespace Akka.Contrib.Pattern
 
         private bool _oldestChangedReceived = true;
         private bool _selfExited;
-        private ActorRef _oldestChangedBuffer;
+        private IActorRef _oldestChangedBuffer;
         private ImmutableDictionary<Address, Deadline> _removed = ImmutableDictionary<Address, Deadline>.Empty;
         private readonly string _role;
         private readonly Props _singletonProps;
@@ -241,7 +241,7 @@ namespace Akka.Contrib.Pattern
         private readonly int _maxTakeOverRetries;
         private readonly object _terminationMessage;
         private readonly Akka.Cluster.Cluster _cluster = Akka.Cluster.Cluster.Get(Context.System);
-        private readonly LoggingAdapter _log = Logging.GetLogger(Context.System, "ClusterSingletonManager");
+        private readonly ILoggingAdapter _log = Logging.GetLogger(Context.System, "ClusterSingletonManager");
 
         public ClusterSingletonManagerActor(
                 Props singletonProps,
@@ -253,16 +253,16 @@ namespace Akka.Contrib.Pattern
                 TimeSpan retryInterval
             )
         {
-            Guard.Assert(
-                maxTakeOverRetries < maxHandOverRetries,
-                String.Format(
-                    "maxTakeOverRetries [{0}]must be < maxHandOverRetries [{1}]",
-                    maxTakeOverRetries,
-                    maxHandOverRetries));
+            //Guard.Assert(
+            //    maxTakeOverRetries < maxHandOverRetries,
+            //    String.Format(
+            //        "maxTakeOverRetries [{0}]must be < maxHandOverRetries [{1}]",
+            //        maxTakeOverRetries,
+            //        maxHandOverRetries));
 
-            Guard.Assert(
-                string.IsNullOrEmpty(role) || _cluster.SelfRoles.Contains(role),
-                String.Format("This cluster member [{0}] doesn't have the role [{1}]", _cluster.SelfAddress, role));
+            //Guard.Assert(
+            //    string.IsNullOrEmpty(role) || _cluster.SelfRoles.Contains(role),
+            //    String.Format("This cluster member [{0}] doesn't have the role [{1}]", _cluster.SelfAddress, role));
 
             _singletonProps = singletonProps;
             _singletonName = singletonName;
@@ -276,7 +276,7 @@ namespace Akka.Contrib.Pattern
 
         protected override void PreStart()
         {
-            Guard.Assert(!_cluster.IsTerminated, "Cluster node must not be terminated");
+            //Guard.Assert(!_cluster.IsTerminated, "Cluster node must not be terminated");
 
             _cluster.Subscribe(Self, new[] { typeof(ClusterEvent.MemberExited), typeof(ClusterEvent.MemberRemoved) });
             SetTimer(CleanupTimer, new Cleanup(), TimeSpan.FromMinutes(1.0), repeat: true);
@@ -323,7 +323,7 @@ namespace Akka.Contrib.Pattern
                     .Using(new OldestData() { Singleton = singleton, SingletonTerminated = false });
         }
 
-        private State<ClusterSingletonState, IClusterSingletonData> HandOverDone(ActorRef handOverTo)
+        private State<ClusterSingletonState, IClusterSingletonData> HandOverDone(IActorRef handOverTo)
         {
             Address newOldest = null;
 
@@ -343,7 +343,7 @@ namespace Akka.Contrib.Pattern
             return GoTo(ClusterSingletonState.Younger).Using(new YoungerData { Oldest = newOldest });
         }
 
-        private State<ClusterSingletonState, IClusterSingletonData> GoToHandingOver(ActorRef singleton, bool singletonTerminated, ActorRef handOverTo)
+        private State<ClusterSingletonState, IClusterSingletonData> GoToHandingOver(IActorRef singleton, bool singletonTerminated, IActorRef handOverTo)
         {
             if (singletonTerminated) return HandOverDone(handOverTo);
 
