@@ -26,7 +26,7 @@ namespace Samples.Cluster.Simple
     {
         private static void Main(string[] args)
         {
-            StartUp(args.Length == 0 ? new String[] {"2551", "2552", "0"} : args);
+            StartUp(args.Length == 0 ? new String[] {"2551", "2552", "2553", "2554", "0"} : args);
             Console.WriteLine("Press any key to exit");
             Console.ReadKey();
         }
